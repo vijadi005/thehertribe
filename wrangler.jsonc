@@ -22,12 +22,12 @@
     "CONTACT_TO_EMAIL": "thehertribe@gmail.com",
     "RESEND_FROM_EMAIL": "The Her Tribe <hello@thehertribe.com>"
   },
+  // Incremental cache for ISR — lets WordPress edits appear within ~60s
+  // without a redeploy. Binding name must be NEXT_INC_CACHE_KV (OpenNext).
+  "kv_namespaces": [
+    { "binding": "NEXT_INC_CACHE_KV", "id": "f9f8faa4b70b4ac8a6ca720743a1a772" }
+  ],
   "observability": {
     "enabled": true
   }
-  // For live WordPress updates (ISR / `revalidate`), create an R2 bucket and
-  // bind it here, then enable r2IncrementalCache in open-next.config.ts:
-  // "r2_buckets": [
-  //   { "binding": "NEXT_INC_CACHE_R2_BUCKET", "bucket_name": "the-her-tribe-cache" }
-  // ]
 }

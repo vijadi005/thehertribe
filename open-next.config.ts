@@ -1,14 +1,9 @@
 import { defineCloudflareConfig } from "@opennextjs/cloudflare";
+import kvIncrementalCache from "@opennextjs/cloudflare/overrides/incremental-cache/kv-incremental-cache";
 
-// OpenNext adapter config for deploying this Next.js app to Cloudflare Workers.
-//
-// For live WordPress updates without a full rebuild (ISR / `revalidate = 60`),
-// add an R2 incremental cache:
-//   1. Create an R2 bucket and bind it in wrangler.jsonc (see the comment there).
-//   2. Uncomment the two lines below.
-//
-// import r2IncrementalCache from "@opennextjs/cloudflare/overrides/incremental-cache/r2-incremental-cache";
-
+// ISR incremental cache backed by Cloudflare KV (binding NEXT_INC_CACHE_KV in
+// wrangler.jsonc). This makes the pages' `revalidate` actually work on
+// Cloudflare, so WordPress edits show up on the live site within ~60s.
 export default defineCloudflareConfig({
-  // incrementalCache: r2IncrementalCache,
+  incrementalCache: kvIncrementalCache,
 });

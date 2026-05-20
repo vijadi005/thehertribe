@@ -100,28 +100,26 @@ function extractYouTubeId(html = ""): string {
   return m ? m[1] : "";
 }
 
-// Resolve a category slug -> id (memoized per worker isolate).
-const categoryIdCache = new Map<string, Promise<number | null>>();
+// Resolve a category slug -> id. Found ids are memoized per worker isolate;
+// "not found" is never cached, so a newly created category is picked up.
+const categoryIdCache = new Map<string, number>();
 
 async function getCategoryId(slug: string): Promise<number | null> {
   if (!wpEnabled) return null;
-  const cached = categoryIdCache.get(slug);
-  if (cached) return cached;
-  const p = (async () => {
-    try {
-      const res = await fetch(
-        `${WP_URL}/categories?slug=${encodeURIComponent(slug)}&per_page=1`,
-        { next: { revalidate: 60 } }
-      );
-      if (!res.ok) return null;
-      const cats = (await res.json()) as Array<{ id: number }>;
-      return cats?.[0]?.id ?? null;
-    } catch {
-      return null;
-    }
-  })();
-  categoryIdCache.set(slug, p);
-  return p;
+  if (categoryIdCache.has(slug)) return categoryIdCache.get(slug)!;
+  try {
+    const res = await fetch(
+      `${WP_URL}/categories?slug=${encodeURIComponent(slug)}&per_page=1`,
+      { next: { revalidate: 60 } }
+    );
+    if (!res.ok) return null;
+    const cats = (await res.json()) as Array<{ id: number }>;
+    const id = cats?.[0]?.id ?? null;
+    if (id != null) categoryIdCache.set(slug, id);
+    return id;
+  } catch {
+    return null;
+  }
 }
 
 // Category ids to exclude from the blog (mentors/workshops/tribe-talk).
