@@ -7,10 +7,22 @@ import {
   type WorkshopOffering,
 } from "@/lib/content";
 
-// Headless WordPress (GoDaddy) is the CMS for all structured content.
-// Each content type below maps a WP custom post type + ACF fields to the
-// shapes the pages already use, and falls back to the in-code content in
-// content.ts until the WordPress side is configured.
+// Headless WordPress (GoDaddy) is the CMS. Mentors / Workshops / Tribe Talk are
+// managed as ordinary WordPress POSTS filed under a dedicated category — no
+// plugins needed. Each maps to the shapes the pages use, and falls back to the
+// in-code content in content.ts until the matching category/posts exist.
+//
+//   Category "mentors"     -> title=name,  excerpt=role,      content=bio,  featured image=photo
+//   Category "workshops"   -> title=title, excerpt=subtitle,  content=copy, featured image=image
+//   Category "tribe-talk"  -> title=topic, excerpt=speaker,   content contains the YouTube link
+//
+// These categories are also excluded from the blog (see lib/posts.ts).
+
+export const CONTENT_CATEGORY_SLUGS = {
+  mentors: "mentors",
+  workshops: "workshops",
+  tribeTalk: "tribe-talk",
+} as const;
 
 const WP_URL = (
   process.env.WORDPRESS_API_URL ||
@@ -20,19 +32,21 @@ const WP_URL = (
 
 const wpEnabled = process.env.WORDPRESS_ENABLED !== "false";
 
-type WpMedia = {
-  source_url?: string;
-  media_details?: { sizes?: Record<string, { source_url?: string }> };
-};
+type WpRendered = { rendered?: string };
 
-type WpEntry = {
+type WpPost = {
   id: number;
   slug: string;
   date: string;
-  menu_order?: number;
-  title?: { rendered?: string };
-  acf?: Record<string, unknown>;
-  _embedded?: { "wp:featuredmedia"?: WpMedia[] };
+  title?: WpRendered;
+  excerpt?: WpRendered;
+  content?: WpRendered;
+  _embedded?: {
+    "wp:featuredmedia"?: Array<{
+      source_url?: string;
+      media_details?: { sizes?: Record<string, { source_url?: string }> };
+    }>;
+  };
 };
 
 function decodeEntities(value = ""): string {
@@ -47,17 +61,19 @@ function decodeEntities(value = ""): string {
     .replace(/&apos;/g, "'");
 }
 
-function stripTags(value = ""): string {
-  return decodeEntities(value.replace(/<[^>]+>/g, "").trim());
+function stripHtml(value = ""): string {
+  return decodeEntities(
+    value
+      .replace(/<script[\s\S]*?<\/script>/gi, "")
+      .replace(/<style[\s\S]*?<\/style>/gi, "")
+      .replace(/<[^>]+>/g, " ")
+      .replace(/\s+/g, " ")
+      .trim()
+  );
 }
 
-function acfStr(entry: WpEntry, key: string): string {
-  const value = entry.acf?.[key];
-  return typeof value === "string" ? value.trim() : "";
-}
-
-function featuredImage(entry: WpEntry): string {
-  const media = entry._embedded?.["wp:featuredmedia"]?.[0];
+function featuredImage(post: WpPost): string {
+  const media = post._embedded?.["wp:featuredmedia"]?.[0];
   return (
     media?.media_details?.sizes?.large?.source_url ||
     media?.media_details?.sizes?.medium_large?.source_url ||
@@ -69,7 +85,7 @@ function featuredImage(entry: WpEntry): string {
 function formatDate(value: string): string {
   if (!value) return "";
   const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return value; // already a display string
+  if (Number.isNaN(date.getTime())) return value;
   return date.toLocaleDateString("en-US", {
     year: "numeric",
     month: "long",
@@ -77,30 +93,67 @@ function formatDate(value: string): string {
   });
 }
 
-async function fetchType(type: string, params = ""): Promise<WpEntry[]> {
-  if (!wpEnabled) return [];
-  const separator = params ? `&${params}` : "";
-  const response = await fetch(
-    `${WP_URL}/${type}?per_page=100&_embed=1&orderby=menu_order&order=asc${separator}`,
-    { next: { revalidate: 60 } }
+function extractYouTubeId(html = ""): string {
+  const m = html.match(
+    /(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([A-Za-z0-9_-]{11})/
   );
-  if (!response.ok) {
-    throw new Error(`WordPress ${type} request failed: ${response.status}`);
-  }
-  return response.json();
+  return m ? m[1] : "";
 }
 
-// CPT: `mentor` — title = name, featured image = photo, ACF: role, bio
+// Resolve a category slug -> id (memoized per worker isolate).
+const categoryIdCache = new Map<string, Promise<number | null>>();
+
+async function getCategoryId(slug: string): Promise<number | null> {
+  if (!wpEnabled) return null;
+  const cached = categoryIdCache.get(slug);
+  if (cached) return cached;
+  const p = (async () => {
+    try {
+      const res = await fetch(
+        `${WP_URL}/categories?slug=${encodeURIComponent(slug)}&per_page=1`,
+        { next: { revalidate: 60 } }
+      );
+      if (!res.ok) return null;
+      const cats = (await res.json()) as Array<{ id: number }>;
+      return cats?.[0]?.id ?? null;
+    } catch {
+      return null;
+    }
+  })();
+  categoryIdCache.set(slug, p);
+  return p;
+}
+
+// Category ids to exclude from the blog (mentors/workshops/tribe-talk).
+export async function getContentCategoryIds(): Promise<number[]> {
+  const ids = await Promise.all(
+    Object.values(CONTENT_CATEGORY_SLUGS).map((s) => getCategoryId(s))
+  );
+  return ids.filter((id): id is number => typeof id === "number");
+}
+
+async function fetchPostsByCategory(slug: string): Promise<WpPost[]> {
+  if (!wpEnabled) return [];
+  const id = await getCategoryId(slug);
+  if (!id) return [];
+  const res = await fetch(
+    `${WP_URL}/posts?categories=${id}&per_page=100&_embed=1`,
+    { next: { revalidate: 60 } }
+  );
+  if (!res.ok) throw new Error(`WordPress posts (cat ${slug}) failed: ${res.status}`);
+  return res.json();
+}
+
 export async function getMentors(): Promise<Mentor[]> {
   if (wpEnabled) {
     try {
-      const docs = await fetchType("mentor");
-      const mapped = docs
-        .map((d) => ({
-          name: stripTags(d.title?.rendered || ""),
-          role: decodeEntities(acfStr(d, "role")),
-          bio: decodeEntities(acfStr(d, "bio")),
-          image: featuredImage(d),
+      const posts = await fetchPostsByCategory(CONTENT_CATEGORY_SLUGS.mentors);
+      const mapped = posts
+        .map((p) => ({
+          name: stripHtml(p.title?.rendered || ""),
+          role: stripHtml(p.excerpt?.rendered || ""),
+          bio: stripHtml(p.content?.rendered || ""),
+          image: featuredImage(p),
         }))
         .filter((m) => m.name && m.image);
       if (mapped.length) return mapped;
@@ -111,18 +164,17 @@ export async function getMentors(): Promise<Mentor[]> {
   return localMentors;
 }
 
-// CPT: `workshop` — title, featured image, ACF: subtitle, price, description
 export async function getWorkshopOfferings(): Promise<WorkshopOffering[]> {
   if (wpEnabled) {
     try {
-      const docs = await fetchType("workshop");
-      const mapped = docs
-        .map((d) => ({
-          title: stripTags(d.title?.rendered || ""),
-          subtitle: decodeEntities(acfStr(d, "subtitle")),
-          copy: decodeEntities(acfStr(d, "description")),
-          price: decodeEntities(acfStr(d, "price")) || "Free",
-          image: featuredImage(d),
+      const posts = await fetchPostsByCategory(CONTENT_CATEGORY_SLUGS.workshops);
+      const mapped = posts
+        .map((p) => ({
+          title: stripHtml(p.title?.rendered || ""),
+          subtitle: stripHtml(p.excerpt?.rendered || ""),
+          copy: stripHtml(p.content?.rendered || ""),
+          price: "Free",
+          image: featuredImage(p),
         }))
         .filter((w) => w.title && w.image);
       if (mapped.length) return mapped;
@@ -133,17 +185,16 @@ export async function getWorkshopOfferings(): Promise<WorkshopOffering[]> {
   return localWorkshops;
 }
 
-// CPT: `tribe_talk` — title = topic, ACF: speaker, youtube_id, session_date
 export async function getTribeTalks(): Promise<TribeTalk[]> {
   if (wpEnabled) {
     try {
-      const docs = await fetchType("tribe_talk");
-      const mapped = docs
-        .map((d) => ({
-          youtubeId: acfStr(d, "youtube_id"),
-          speaker: decodeEntities(acfStr(d, "speaker")),
-          topic: stripTags(d.title?.rendered || ""),
-          date: formatDate(acfStr(d, "session_date") || d.date),
+      const posts = await fetchPostsByCategory(CONTENT_CATEGORY_SLUGS.tribeTalk);
+      const mapped = posts
+        .map((p) => ({
+          youtubeId: extractYouTubeId(p.content?.rendered || ""),
+          speaker: stripHtml(p.excerpt?.rendered || ""),
+          topic: stripHtml(p.title?.rendered || ""),
+          date: formatDate(p.date),
         }))
         .filter((t) => t.youtubeId && t.topic);
       if (mapped.length) return mapped;

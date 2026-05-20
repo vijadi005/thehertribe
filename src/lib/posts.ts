@@ -1,6 +1,7 @@
 import type { PortableTextBlock } from "@portabletext/react";
 import { posts as localPosts, type Block, type Post } from "@/lib/content";
 import { sanityClient, sanityEnabled } from "@/lib/sanity";
+import { getContentCategoryIds } from "@/lib/wp";
 
 export type PostSummary = {
   slug: string;
@@ -179,10 +180,20 @@ async function fetchWordPressPosts(params = ""): Promise<WpPost[]> {
   return response.json();
 }
 
+// Keep mentors/workshops/tribe-talk category posts out of the blog list.
+async function blogExcludeParam(): Promise<string> {
+  try {
+    const ids = await getContentCategoryIds();
+    return ids.length ? `categories_exclude=${ids.join(",")}` : "";
+  } catch {
+    return "";
+  }
+}
+
 export async function getAllPosts(): Promise<PostSummary[]> {
   if (wordpressEnabled) {
     try {
-      const docs = await fetchWordPressPosts();
+      const docs = await fetchWordPressPosts(await blogExcludeParam());
       if (docs && docs.length) return docs.map(normalizeWpPost);
     } catch (err) {
       console.error("WordPress getAllPosts failed, trying next source:", err);
@@ -205,7 +216,10 @@ export async function getAllPosts(): Promise<PostSummary[]> {
 export async function getPostSlugs(): Promise<string[]> {
   if (wordpressEnabled) {
     try {
-      const docs = await fetchWordPressPosts("_fields=slug");
+      const exclude = await blogExcludeParam();
+      const docs = await fetchWordPressPosts(
+        "_fields=slug" + (exclude ? `&${exclude}` : "")
+      );
       if (docs && docs.length) return docs.map((post) => post.slug);
     } catch (err) {
       console.error("WordPress getPostSlugs failed, trying next source:", err);
