@@ -3,7 +3,7 @@ import Link from "next/link";
 import Reveal from "@/components/Reveal";
 import ContactForm from "@/components/ContactForm";
 import { IconMail, IconPhone, IconClock } from "@/components/icons";
-import { site } from "@/lib/content";
+import { getSiteContent, renderEmphasis, phoneHref } from "@/lib/site-content";
 
 export const metadata: Metadata = {
   title: "Contact",
@@ -11,7 +11,11 @@ export const metadata: Metadata = {
     "Reach out to The Her Tribe — join the community, ask about a program, or become a mentor. We'd love to hear from you.",
 };
 
-export default function ContactPage() {
+export const revalidate = 60;
+
+export default async function ContactPage() {
+  const sc = await getSiteContent();
+
   return (
     <main>
       <section className="page-hero">
@@ -21,11 +25,10 @@ export default function ContactPage() {
             <Link href="/">Home</Link> / Contact
           </Reveal>
           <Reveal as="h1" delay={60}>
-            Let&apos;s <em className="fancy">talk</em>.
+            {renderEmphasis(sc.contact.title)}
           </Reveal>
           <Reveal as="p" className="lead" delay={140}>
-            Whether you want to join the community, ask about a program, or share
-            your own story as a mentor — we&apos;d love to hear from you.
+            {sc.contact.lead}
           </Reveal>
         </div>
       </section>
@@ -45,7 +48,7 @@ export default function ContactPage() {
                 </div>
                 <div>
                   <h3>Email</h3>
-                  <a href={`mailto:${site.email}`}>{site.email}</a>
+                  <a href={`mailto:${sc.email}`}>{sc.email}</a>
                 </div>
               </div>
 
@@ -55,7 +58,7 @@ export default function ContactPage() {
                 </div>
                 <div>
                   <h3>Phone</h3>
-                  <a href={site.phoneHref}>{site.phone}</a>
+                  <a href={phoneHref(sc.phone)}>{sc.phone}</a>
                 </div>
               </div>
 

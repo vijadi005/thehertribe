@@ -4,12 +4,15 @@ import Link from "next/link";
 import Reveal from "@/components/Reveal";
 import { IconCheck } from "@/components/icons";
 import { faqs, images, workshops } from "@/lib/content";
+import { getSiteContent, renderEmphasis } from "@/lib/site-content";
 
 export const metadata: Metadata = {
   title: "Programs",
   description:
     "Career mentorship, financial literacy, well-being circles, and Tribe Talk — practical programs designed around real women's lives.",
 };
+
+export const revalidate = 60;
 
 const programs = [
   {
@@ -50,7 +53,9 @@ const programs = [
   },
 ];
 
-export default function ProgramsPage() {
+export default async function ProgramsPage() {
+  const sc = await getSiteContent();
+
   return (
     <main>
       <section className="page-hero">
@@ -61,12 +66,10 @@ export default function ProgramsPage() {
             <Link href="/">Home</Link> / Programs
           </Reveal>
           <Reveal as="h1" delay={60}>
-            Programs built around <em className="fancy">real lives</em>.
+            {renderEmphasis(sc.programs.title)}
           </Reveal>
           <Reveal as="p" className="lead" delay={140}>
-            Three pathways — career, money, and well-being — plus Tribe Talk, our
-            open space for honest conversation. Come for the skills, stay for the
-            community.
+            {sc.programs.lead}
           </Reveal>
         </div>
       </section>

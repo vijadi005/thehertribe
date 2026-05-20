@@ -4,12 +4,15 @@ import Link from "next/link";
 import Reveal from "@/components/Reveal";
 import { pillarIcons } from "@/components/icons";
 import { images, stats } from "@/lib/content";
+import { getSiteContent, renderEmphasis } from "@/lib/site-content";
 
 export const metadata: Metadata = {
   title: "About",
   description:
     "The Her Tribe began as a circle of women supporting each other — today it's a community for mentorship, financial literacy, and well-being.",
 };
+
+export const revalidate = 60;
 
 const values = [
   {
@@ -29,7 +32,9 @@ const values = [
   },
 ];
 
-export default function AboutPage() {
+export default async function AboutPage() {
+  const sc = await getSiteContent();
+
   return (
     <main>
       <section className="page-hero">
@@ -40,12 +45,10 @@ export default function AboutPage() {
             <Link href="/">Home</Link> / About
           </Reveal>
           <Reveal as="h1" delay={60}>
-            A circle of women, <em className="fancy">growing together</em>.
+            {renderEmphasis(sc.about.title)}
           </Reveal>
           <Reveal as="p" className="lead" delay={140}>
-            The Her Tribe began with a simple belief: every woman deserves a
-            community that helps her thrive — financially, professionally, and
-            personally.
+            {sc.about.lead}
           </Reveal>
         </div>
       </section>

@@ -4,11 +4,15 @@ import Reveal from "@/components/Reveal";
 import { pillarIcons } from "@/components/icons";
 import { images, pillars, stats, testimonials, workshops } from "@/lib/content";
 import { getAllPosts } from "@/lib/posts";
+import { getSiteContent, renderEmphasis } from "@/lib/site-content";
 
 export const revalidate = 60;
 
 export default async function Home() {
-  const posts = (await getAllPosts()).slice(0, 3);
+  const [posts, sc] = await Promise.all([
+    getAllPosts().then((p) => p.slice(0, 3)),
+    getSiteContent(),
+  ]);
 
   return (
     <main>
@@ -20,15 +24,13 @@ export default async function Home() {
           <div className="hero-grid">
             <div className="hero-copy">
               <Reveal as="p" className="eyebrow">
-                Be fearless. Be empowered.
+                {sc.home.eyebrow}
               </Reveal>
               <Reveal as="h1" delay={80}>
-                Take control of your life and write your <em className="fancy">own story</em>.
+                {renderEmphasis(sc.home.title)}
               </Reveal>
               <Reveal as="p" className="lead" delay={160}>
-                The Her Tribe is a women-led community for financial literacy,
-                career mentorship, workshops, and personal growth — a circle of
-                women lifting each other forward.
+                {sc.home.lead}
               </Reveal>
               <Reveal className="hero-actions" delay={220}>
                 <Link href="/contact" className="btn btn-primary">

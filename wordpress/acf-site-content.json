@@ -1,0 +1,103 @@
+[
+  {
+    "key": "group_site_content",
+    "title": "Site Content",
+    "fields": [
+      {
+        "key": "field_sc_home_eyebrow",
+        "label": "Home — Eyebrow",
+        "name": "home_eyebrow",
+        "type": "text",
+        "default_value": "Be fearless. Be empowered."
+      },
+      {
+        "key": "field_sc_home_title",
+        "label": "Home — Headline",
+        "name": "home_title",
+        "type": "text",
+        "instructions": "Wrap part of the headline in *asterisks* to give it the rose/plum italic accent. e.g. write your *own story*",
+        "default_value": "Take control of your life and write your *own story*."
+      },
+      {
+        "key": "field_sc_home_lead",
+        "label": "Home — Intro paragraph",
+        "name": "home_lead",
+        "type": "textarea",
+        "rows": 3,
+        "default_value": "The Her Tribe is a women-led community for financial literacy, career mentorship, workshops, and personal growth — a circle of women lifting each other forward."
+      },
+      {
+        "key": "field_sc_about_title",
+        "label": "About — Headline",
+        "name": "about_title",
+        "type": "text",
+        "instructions": "Use *asterisks* for the italic accent.",
+        "default_value": "A circle of women, *growing together*."
+      },
+      {
+        "key": "field_sc_about_lead",
+        "label": "About — Intro paragraph",
+        "name": "about_lead",
+        "type": "textarea",
+        "rows": 3,
+        "default_value": "The Her Tribe began with a simple belief: every woman deserves a community that helps her thrive — financially, professionally, and personally."
+      },
+      {
+        "key": "field_sc_programs_title",
+        "label": "Programs — Headline",
+        "name": "programs_title",
+        "type": "text",
+        "instructions": "Use *asterisks* for the italic accent.",
+        "default_value": "Programs built around *real lives*."
+      },
+      {
+        "key": "field_sc_programs_lead",
+        "label": "Programs — Intro paragraph",
+        "name": "programs_lead",
+        "type": "textarea",
+        "rows": 3,
+        "default_value": "Three pathways — career, money, and well-being — plus Tribe Talk, our open space for honest conversation. Come for the skills, stay for the community."
+      },
+      {
+        "key": "field_sc_contact_title",
+        "label": "Contact — Headline",
+        "name": "contact_title",
+        "type": "text",
+        "instructions": "Use *asterisks* for the italic accent.",
+        "default_value": "Let's *talk*."
+      },
+      {
+        "key": "field_sc_contact_lead",
+        "label": "Contact — Intro paragraph",
+        "name": "contact_lead",
+        "type": "textarea",
+        "rows": 3,
+        "default_value": "Whether you want to join the community, ask about a program, or share your own story as a mentor — we'd love to hear from you."
+      },
+      {
+        "key": "field_sc_contact_email",
+        "label": "Contact email",
+        "name": "contact_email",
+        "type": "text",
+        "default_value": "thehertribe@gmail.com"
+      },
+      {
+        "key": "field_sc_contact_phone",
+        "label": "Contact phone",
+        "name": "contact_phone",
+        "type": "text",
+        "default_value": "(613) 314-6225"
+      }
+    ],
+    "location": [
+      [{ "param": "page", "operator": "==", "value": "5225" }]
+    ],
+    "menu_order": 0,
+    "position": "normal",
+    "style": "default",
+    "label_placement": "top",
+    "instruction_placement": "label",
+    "active": true,
+    "show_in_rest": 1
+  }
+]

@@ -2,9 +2,11 @@ import Image from "next/image";
 import Link from "next/link";
 import { images, nav, site } from "@/lib/content";
 import { IconInstagram, IconLinkedin, IconFacebook } from "@/components/icons";
+import { getSiteContent, phoneHref } from "@/lib/site-content";
 
-export default function SiteFooter() {
+export default async function SiteFooter() {
   const year = new Date().getFullYear();
+  const sc = await getSiteContent();
 
   return (
     <footer className="site-footer">
@@ -51,8 +53,8 @@ export default function SiteFooter() {
 
           <div className="footer-col">
             <h4>Get in touch</h4>
-            <a href={`mailto:${site.email}`}>{site.email}</a>
-            <a href={site.phoneHref}>{site.phone}</a>
+            <a href={`mailto:${sc.email}`}>{sc.email}</a>
+            <a href={phoneHref(sc.phone)}>{sc.phone}</a>
             <p style={{ marginTop: 14, maxWidth: "26ch" }}>
               Supported by the Dhruva Foundation.
             </p>
