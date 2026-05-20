@@ -33,8 +33,8 @@ export default async function Home() {
                 {sc.home.lead}
               </Reveal>
               <Reveal className="hero-actions" delay={220}>
-                <Link href="/contact" className="btn btn-primary">
-                  Join the tribe
+                <Link href="/newsletter" className="btn btn-primary">
+                  Subscribe to Newsletter
                 </Link>
                 <Link href="/programs" className="btn btn-ghost">
                   Explore programs

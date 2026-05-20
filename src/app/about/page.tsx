@@ -168,7 +168,7 @@ export default async function AboutPage() {
               </p>
               <div className="cta-actions">
                 <Link href="/contact" className="btn btn-primary">
-                  Join the tribe
+                  Get in touch
                 </Link>
                 <Link href="/programs" className="btn btn-ghost">
                   Explore programs

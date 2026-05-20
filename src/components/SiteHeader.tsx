@@ -53,8 +53,8 @@ export default function SiteHeader() {
           </nav>
 
           <div className="nav-right">
-            <Link href="/contact" className="btn btn-primary">
-              Join the tribe
+            <Link href="/newsletter" className="btn btn-primary">
+              Subscribe
             </Link>
             <button
               type="button"
@@ -81,8 +81,8 @@ export default function SiteHeader() {
                 {item.label}
               </Link>
             ))}
-            <Link href="/contact" className="btn btn-primary">
-              Join the tribe
+            <Link href="/newsletter" className="btn btn-primary">
+              Subscribe to Newsletter
             </Link>
           </nav>
         </div>
