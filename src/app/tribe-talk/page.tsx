@@ -11,7 +11,7 @@ export const metadata: Metadata = {
     "Stories, insights, and resources to inspire growth, self-care, and empowerment — watch past Tribe Talk sessions with women mentors and leaders.",
 };
 
-export const revalidate = 60;
+export const revalidate = 1800;
 
 const themes = [
   "Financial freedom",

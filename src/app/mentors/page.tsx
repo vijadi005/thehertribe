@@ -10,7 +10,7 @@ export const metadata: Metadata = {
     "Meet the #powertribe — the financial experts, coaches, psychologists, and educators who make it happen for the women of The Her Tribe.",
 };
 
-export const revalidate = 60;
+export const revalidate = 1800;
 
 export default async function MentorsPage() {
   const mentors = await getMentors();

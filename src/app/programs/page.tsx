@@ -12,7 +12,7 @@ export const metadata: Metadata = {
     "Career mentorship, financial literacy, well-being circles, and Tribe Talk — practical programs designed around real women's lives.",
 };
 
-export const revalidate = 60;
+export const revalidate = 1800;
 
 const programs = [
   {

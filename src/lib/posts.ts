@@ -172,7 +172,7 @@ async function fetchWordPressPosts(params = ""): Promise<WpPost[]> {
   const separator = params ? `&${params}` : "";
   const response = await fetch(
     `${WORDPRESS_API_URL}/posts?per_page=20&_embed=1${separator}`,
-    { next: { revalidate: 60 } }
+    { next: { revalidate: 1800 } }
   );
   if (!response.ok) {
     throw new Error(`WordPress posts request failed: ${response.status}`);

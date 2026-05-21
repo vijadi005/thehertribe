@@ -12,7 +12,7 @@ export const metadata: Metadata = {
     "The Tribe Blog — fresh thinking on money, work, growth, and well-being for women designing their own lives.",
 };
 
-export const revalidate = 60;
+export const revalidate = 1800;
 
 export default async function BlogPage() {
   const posts = await getAllPosts();

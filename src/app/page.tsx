@@ -6,7 +6,7 @@ import { images, pillars, stats, testimonials, workshops } from "@/lib/content";
 import { getAllPosts } from "@/lib/posts";
 import { getSiteContent, renderEmphasis } from "@/lib/site-content";
 
-export const revalidate = 60;
+export const revalidate = 1800;
 
 export default async function Home() {
   const [posts, sc] = await Promise.all([

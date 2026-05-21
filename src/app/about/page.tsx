@@ -12,7 +12,7 @@ export const metadata: Metadata = {
     "The Her Tribe began as a circle of women supporting each other — today it's a community for mentorship, financial literacy, and well-being.",
 };
 
-export const revalidate = 60;
+export const revalidate = 1800;
 
 const values = [
   {

@@ -11,7 +11,7 @@ export const metadata: Metadata = {
     "Reach out to The Her Tribe — join the community, ask about a program, or become a mentor. We'd love to hear from you.",
 };
 
-export const revalidate = 60;
+export const revalidate = 1800;
 
 export default async function ContactPage() {
   const sc = await getSiteContent();

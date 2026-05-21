@@ -110,7 +110,7 @@ async function getCategoryId(slug: string): Promise<number | null> {
   try {
     const res = await fetch(
       `${WP_URL}/categories?slug=${encodeURIComponent(slug)}&per_page=1`,
-      { next: { revalidate: 60 } }
+      { next: { revalidate: 1800 } }
     );
     if (!res.ok) return null;
     const cats = (await res.json()) as Array<{ id: number }>;
@@ -136,7 +136,7 @@ async function fetchPostsByCategory(slug: string): Promise<WpPost[]> {
   if (!id) return [];
   const res = await fetch(
     `${WP_URL}/posts?categories=${id}&per_page=100&_embed=1`,
-    { next: { revalidate: 60 } }
+    { next: { revalidate: 1800 } }
   );
   if (!res.ok) throw new Error(`WordPress posts (cat ${slug}) failed: ${res.status}`);
   return res.json();

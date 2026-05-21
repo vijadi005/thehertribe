@@ -12,7 +12,7 @@ export const metadata: Metadata = {
     "Enroll for FREE mentor-led workshops on financial literacy, leadership, communication, life transformation, entrepreneurship, and personal branding.",
 };
 
-export const revalidate = 60;
+export const revalidate = 1800;
 
 export default async function WorkshopPage() {
   const [workshopOfferings, mentors] = await Promise.all([

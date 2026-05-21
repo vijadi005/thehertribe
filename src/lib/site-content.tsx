@@ -52,7 +52,7 @@ export async function getSiteContent(): Promise<SiteContent> {
   if (wpEnabled) {
     try {
       const res = await fetch(`${WP_URL}/pages?slug=site-content&_fields=acf`, {
-        next: { revalidate: 60 },
+        next: { revalidate: 1800 },
       });
       if (res.ok) {
         const arr = (await res.json()) as Array<{ acf?: Record<string, unknown> }>;

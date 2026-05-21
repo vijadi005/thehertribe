@@ -156,4 +156,4 @@ export default async function PostPage({
 }
 
 // Revalidate from Sanity periodically when the CMS is connected.
-export const revalidate = 60;
+export const revalidate = 1800;
