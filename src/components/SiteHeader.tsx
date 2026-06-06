@@ -54,7 +54,7 @@ export default function SiteHeader() {
 
           <div className="nav-right">
             <Link href="/newsletter" className="btn btn-primary">
-              Subscribe
+              Subscribe Newsletter
             </Link>
             <button
               type="button"
