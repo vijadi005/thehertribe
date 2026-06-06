@@ -20,7 +20,8 @@
     "WORDPRESS_API_URL": "https://cms.thehertribe.com/wp-json/wp/v2",
     "WORDPRESS_ENABLED": "true",
     "CONTACT_TO_EMAIL": "thehertribe@gmail.com",
-    "RESEND_FROM_EMAIL": "The Her Tribe <hello@thehertribe.com>"
+    "RESEND_FROM_EMAIL": "The Her Tribe <hello@thehertribe.com>",
+    "KIT_FORM_ID": "8787091"
   },
   // Incremental cache for ISR — lets WordPress edits appear within ~60s
   // without a redeploy. Binding name must be NEXT_INC_CACHE_KV (OpenNext).
